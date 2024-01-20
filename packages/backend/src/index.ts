@@ -1,25 +1,38 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import {Pool} from 'pg';
+
+const pool = new Pool({
+    user: 'user',
+    host: 'localhost',
+    database: 'dbname',
+    password: 'pass',
+    port: 5432,
+});
+
+async function getUserFromDB(username: string){
+    const client = await pool.connect();
+    try {
+        const result = await client.query('SELECT * FROM mst_users WHERE name = $1', [username]);
+        return result.rows[0];
+    } finally {
+        client.release();
+    }
+}
 
 const app = express();
-
-// This is a hardcoded user. In a real-world application, you would fetch this from a database.
-type User = {
-    id: number;
-    name: string;
-    password: string;
-}
 
 app.use(express.json());
 
 app.get('/hello', (req, res) => {
     res.send('Hello World!');
 });
-app.post('/token', (req, res) => {
+
+app.post('/token',async (req, res) => {
     const { name, password } = req.body;
     // For the given username fetch user from DB
-    const user = {name, password};
-    if(user.name !== "user" || user.password !== "pass"){
+    const user = await getUserFromDB(name);
+    if(!user || user.password !== password){
         res.status(401).json({ error: 'Invalid username or password' });
     }
   // Sign the JWT
