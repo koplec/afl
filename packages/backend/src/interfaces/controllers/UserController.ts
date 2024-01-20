@@ -12,7 +12,7 @@ router.post('/token',async (req, res) => {
     const { name, password } = req.body;
 
     const user = await getUser.execute(name);
-    if(!user || user.password !== password){
+    if(!user || user.validPassword(password) === false){
         res.status(401).json({ error: 'Invalid username or password' });
     }
     //Sign the JWT
