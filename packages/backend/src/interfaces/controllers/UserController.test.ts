@@ -33,5 +33,14 @@ describe("UserController", () => {
         await userController.token(req as any, res as any);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
+
+        const req2 = { body: { name: 'test2', password: 'password' } };
+        const res2 = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+        await userController.token(req2 as any, res2 as any);
+        expect(res2.status).toHaveBeenCalledWith(401);
+        expect(res2.json).toHaveBeenCalledWith({ error: expect.any(String) });
     });
 })
