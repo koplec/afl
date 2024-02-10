@@ -18,7 +18,8 @@ describe("UserResourceController", () => {
                         protocolType: "WEBDAV",
                         url: "http://hogehoge-webdav:port9999",
                         username: "CCC",
-                        password: "DDD"
+                        password: "DDD",
+                        directory: "/path/to/directory/EEE"
                     });
                 }else{
                     return Promise.resolve(null);
@@ -50,7 +51,8 @@ describe("UserResourceController", () => {
             protocolType: "WEBDAV",
             url: "http://hogehoge-webdav:port9999",
             username: "CCC",
-            password: "DDD"
+            password: "DDD",
+            directory: "/path/to/directory/EEE"
         });
 
     });

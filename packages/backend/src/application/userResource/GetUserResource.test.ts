@@ -25,7 +25,8 @@ describe("GetUserResource", () => {
             protocolType: "WEBDAV",
             url: "http://hogehoge-webdav:port9999",
             username: "AAAA",
-            password: "BBBBB"
+            password: "BBBBB",
+            directory: "/path/to/directory"
             // Add other properties here
         };
         jest.spyOn(userResourceRepository, "getUserResource").mockResolvedValue(expectedUserResource);

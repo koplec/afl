@@ -1,8 +1,18 @@
 import { UserResourceType } from "../../domain/types";
 import pool from "./Database";
 
+type WEBDAVDetailType = {
+    version: "1.0";
+    webdav_url: string;
+    webdav_username: string;
+    webdav_password: string;
+    webdav_directory: string;
+};
 
 export class UserResourceRepository {
+    constructor() {
+        console.log("UserResourceRepository instantiated");
+    }
     async getUserResource(userId: number, resourceId: number):Promise<UserResourceType|null>{
         const client = await pool.connect();
         try {
@@ -30,7 +40,8 @@ export class UserResourceRepository {
                             protocolType: r["type"],
                             url: details["webdav_url"],
                             username: details["webdav_username"],
-                            password: details["webdav_password"]
+                            password: details["webdav_password"],
+                            directory: details["webdav_directory"]
                         }
                     default:
                         return null;
@@ -41,6 +52,57 @@ export class UserResourceRepository {
         }catch(e){
             console.error(e);
             return null;
+        } finally {
+            client.release();
+        }
+    }
+
+    async updateUserWEBDavResource(userId: number, resourceId: number, 
+        webdavUrl:string , webdavUsername:string, webdavPassword:string, webdavDirectory:string):Promise<boolean>{
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const select = await client.query(
+                `
+                SELECT *
+                FROM mst_user_resources
+                WHERE id = $1 AND mst_user_id = $2
+                `, [resourceId, userId]);
+            if(select.rows.length === 0){
+                await client.query('ROLLBACK');
+                return false;
+            }
+
+            const connectionDetails:WEBDAVDetailType = {
+                version: "1.0",
+                webdav_url: webdavUrl,
+                webdav_username: webdavUsername,
+                webdav_password: webdavPassword,
+                webdav_directory: webdavDirectory
+            };
+            const resource = JSON.stringify(connectionDetails);
+            const result = await client.query(
+                `
+                UPDATE mst_user_resources
+                SET connection_details = $1, 
+                updated_at = now()
+                WHERE id = $2 AND mst_user_id = $3
+                `,
+                [resource, resourceId, userId]
+            );
+            if(result.rowCount === 1){
+                await client.query('COMMIT');
+                return true;
+            }else{
+                await client.query('ROLLBACK');
+                return false;           
+            }
+
+        }catch(e){
+            console.error(e);
+            await client.query('ROLLBACK');
+            return false;
         } finally {
             client.release();
         }

@@ -5,4 +5,5 @@ export type UserResourceType = {
     url: string;
     username: string;
     password: string;
+    directory: string;
 };
