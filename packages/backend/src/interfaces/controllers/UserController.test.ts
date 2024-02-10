@@ -1,5 +1,3 @@
-
-
 import {jest, describe, it, expect} from "@jest/globals";
 import { GetUser } from "../../application/user/GetUser";
 import UserController from "./UserController";
