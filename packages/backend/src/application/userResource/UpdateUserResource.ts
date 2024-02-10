@@ -22,7 +22,7 @@ export class UpdateUserResource {
         args.userId, args.resourceId, args.url, args.username, args.password, args.directory
     );
     if (!updated) {
-      throw new Error('User resource not found');
+      throw new Error('User resource update failed');
     }
     return updated;
   }
