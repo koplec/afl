@@ -11,7 +11,7 @@ describe('UserRepository', () => {
     describe('getUserByName', () => {
         it('returns a user when the user exists', async () => {
             const user = await userRepository.getUserByName('user');
-            expect(user).toEqual({ id: 1, name: 'user', password: 'pass' });
+            expect({ id: 1, name: 'user', password: 'pass' }).toEqual(user);
         });
 
         it('returns null when the user does not exist', async () => {
