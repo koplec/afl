@@ -3,6 +3,7 @@ import GetUserResource from '../../application/userResource/GetUserResource';
 import {jest, describe, it, expect} from "@jest/globals";
 import { UserResourceRepository } from '../../infrastructure/db/UserResourceRepository';
 import { UserResourceType } from '../../domain/types';
+import { UpdateUserResource } from '../../application/userResource/UpdateUserResource';
 
 describe("UserResourceController", () => {
     it('should return 404 when resource not found and 200 when resource', async () => {
@@ -27,7 +28,12 @@ describe("UserResourceController", () => {
             }
         );
 
-        const userResourceController = new UserResourceController(getUserResource);
+        const MockUpdateUserResource = UpdateUserResource as jest.MockedClass<typeof UpdateUserResource>;
+        const updateUserResource = new MockUpdateUserResource(mockUserResourceRepository);
+
+        const userResourceController = new UserResourceController(
+            getUserResource, updateUserResource
+        );
         const req = { params: { userId: 1, resourceId: 1 } };
         const res = {
             status: jest.fn().mockReturnThis(),

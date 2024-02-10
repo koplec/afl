@@ -2,9 +2,11 @@ import GetUserResource from "./GetUserResource";
 import { UserResourceType } from "../../domain/types";
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository";
 import {jest, describe, it, expect, beforeEach} from "@jest/globals";
+import { UpdateUserResource } from "./UpdateUserResource";
 
 describe("GetUserResource", () => {
     let getUserResource: GetUserResource;
+    let updateUserResource: UpdateUserResource;
     let userResourceRepository: UserResourceRepository;
 
     beforeEach(() => {
@@ -12,6 +14,7 @@ describe("GetUserResource", () => {
         userResourceRepository = new mockUserResourceRepo();
 
         getUserResource = new GetUserResource(userResourceRepository);
+        updateUserResource = new UpdateUserResource(userResourceRepository);
     });
 
     it("should return the user resource when it exists", async () => {

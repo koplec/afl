@@ -5,6 +5,7 @@ import { UserRepository } from './infrastructure/db/UserRepository';
 import UserResourceController from './interfaces/controllers/UserResourceController';
 import GetUserResource from './application/userResource/GetUserResource';
 import { UserResourceRepository } from './infrastructure/db/UserResourceRepository';
+import { UpdateUserResource } from './application/userResource/UpdateUserResource';
 
 //repository 
 const userResourceRepository = new UserResourceRepository();
@@ -14,10 +15,11 @@ const userRepository = new UserRepository();
 //use cases
 const getUser = new GetUser(userRepository);
 const getUserResource = new GetUserResource(userResourceRepository);
+const updateUserResource = new UpdateUserResource(userResourceRepository);
 
 //controller
 const userController = new UserController(getUser);
-const userResoureController = new UserResourceController(getUserResource);
+const userResoureController = new UserResourceController(getUserResource, updateUserResource);
 
 const app = express();
 app.use(express.json());
