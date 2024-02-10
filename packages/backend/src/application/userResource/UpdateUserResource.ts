@@ -1,6 +1,6 @@
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository";
 
-export type UpdateUserResourceType = {
+export type UpdateUserResourceArgsType = {
     userId: number;
     resourceId: number;
     url: string;
@@ -17,7 +17,7 @@ export class UpdateUserResource {
     this.userResourceRepository = userResourceRepository;
   }
 
-  async execute(args: UpdateUserResourceType): Promise<boolean> {
+  async execute(args: UpdateUserResourceArgsType): Promise<boolean> {
     const updated = await this.userResourceRepository.updateUserWEBDavResource(
         args.userId, args.resourceId, args.url, args.username, args.password, args.directory
     );

@@ -1,5 +1,5 @@
 import {jest, describe, it, expect, beforeEach} from "@jest/globals";
-import { UpdateUserResource, UpdateUserResourceType } from "./UpdateUserResource";
+import { UpdateUserResource, UpdateUserResourceArgsType } from "./UpdateUserResource";
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository";
 
 describe("UpdateUserResource", () => {
@@ -15,7 +15,7 @@ describe("UpdateUserResource", () => {
 
     it("should update user resource successfully", async () => {
         // Arrange
-        const args: UpdateUserResourceType = {
+        const args: UpdateUserResourceArgsType = {
             userId: 1,
             resourceId: 1,
             url: "https://example.com:port",
@@ -36,7 +36,7 @@ describe("UpdateUserResource", () => {
     it('should throw an error when the user resource is not updated', async () => {
 
         // Arrange
-        const args: UpdateUserResourceType = {
+        const args: UpdateUserResourceArgsType = {
             userId: 1,
             resourceId: 1,
             url: "https://example.com:port",
