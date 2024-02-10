@@ -1,25 +1,4 @@
--- # 001_create_db_revisions_table.sql
-CREATE TABLE db_revisions (
-    id INTEGER PRIMARY KEY,
-    applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
-);
-insert into db_revisions (id, description) values (1, 'create db_revisions table');
-
--- # 002_create_mst_users_table.sql
-CREATE TABLE mst_users (
-    id SERIAL PRIMARY KEY,
-    name varchar(50) UNIQUE NOT NULL,
-    password varchar(50) NOT NULL,
-    salt varchar(50) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-insert into db_revisions (id, description) values (2, 'create mst_users table');
-
-INSERT INTO mst_users (name, password, salt) VALUES ('user', 'pass', 'salt');
-
--- # 003_create_mst_user_resources_table_mst_protocol_table.sql
+begin;
 
 CREATE TABLE IF NOT EXISTS mst_protocol_types (
     id INTEGER PRIMARY KEY,
@@ -61,3 +40,4 @@ INSERT INTO mst_protocol_types (id, type) VALUES (2, 'WEBDAV');
 select * from mst_protocol_types;
 
 insert into db_revisions (id, description) values (3, 'create mst_user_resources and mst_protocol_types table');
+rollback;

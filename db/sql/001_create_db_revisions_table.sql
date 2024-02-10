@@ -1,7 +1,7 @@
 begin;
 CREATE TABLE db_revisions (
     id INTEGER PRIMARY KEY,
-    applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     description TEXT
 );
 
