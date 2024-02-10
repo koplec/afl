@@ -17,8 +17,6 @@ CREATE TABLE mst_users (
 );
 insert into db_revisions (id, description) values (2, 'create mst_users table');
 
-INSERT INTO mst_users (name, password, salt) VALUES ('user', 'pass', 'salt');
-
 -- # 003_create_mst_user_resources_table_mst_protocol_table.sql
 
 CREATE TABLE IF NOT EXISTS mst_protocol_types (
@@ -58,6 +56,22 @@ COMMENT ON COLUMN mst_user_resources.updated_at IS 'レコードの更新日時'
 -- init data of mst_protocol_types 
 INSERT INTO mst_protocol_types (id, type) VALUES (1, 'SMB');
 INSERT INTO mst_protocol_types (id, type) VALUES (2, 'WEBDAV');
-select * from mst_protocol_types;
 
 insert into db_revisions (id, description) values (3, 'create mst_user_resources and mst_protocol_types table');
+
+
+
+--- sample data ---
+INSERT INTO mst_users (name, password, salt) VALUES ('user', 'pass', 'salt');
+INSERT INTO mst_user_resources (mst_user_id, mst_protocol_type_id, connection_details)
+VALUES (
+    1,  -- userユーザ
+    2,  -- ここに適切なプロトコルタイプIDを設定します
+    '{
+        "version": "1.0",
+        "webdav_url": "http://your-webdav-host.com:port",
+        "webdav_username": "username",
+        "webdav_password": "password",
+        "webdav_directory": "/path/to/directory"
+    }'::jsonb
+);
