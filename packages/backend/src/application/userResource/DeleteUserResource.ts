@@ -8,9 +8,6 @@ export class DeleteUserResource {
 
     async execute(userId: number, resourceId: number): Promise<boolean>{
         const deleted = await this.userResourceRepository.deleteUserResource(userId, resourceId);
-        if (!deleted) {
-            throw new Error('User resource deletion failed');
-        }
         return deleted;
     }
 }

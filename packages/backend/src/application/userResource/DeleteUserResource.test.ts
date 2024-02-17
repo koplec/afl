@@ -7,8 +7,8 @@ describe("DeleteUserResource", () => {
     let userResourceRepository: UserResourceRepository;
 
     beforeEach(() => {
-        const mockUserResourceRepo = UserResourceRepository as jest.MockedClass<typeof UserResourceRepository>;
-        userResourceRepository = new mockUserResourceRepo();
+        const MockUserResourceRepo = UserResourceRepository as jest.MockedClass<typeof UserResourceRepository>;
+        userResourceRepository = new MockUserResourceRepo();
 
         deleteUserResource = new DeleteUserResource(userResourceRepository);
     });
@@ -24,15 +24,15 @@ describe("DeleteUserResource", () => {
         expect(result).toBe(true);
     });
 
-    it('should throw an error when the user resource is not deleted', async () => {
+    it('should delete user resource with failure', async () => {
 
         // Arrange
         jest.spyOn(userResourceRepository, "deleteUserResource").mockResolvedValue(false);
 
         // Act
-        const result = deleteUserResource.execute(1, 1);
+        const result = await deleteUserResource.execute(1, 1);
 
         // Assert
-        await expect(result).rejects.toThrow('User resource deletion failed');
+        expect(result).toBe(false);
     });
 });

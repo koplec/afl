@@ -2,6 +2,7 @@ import express from 'express';
 import GetUserResource from '../../application/userResource/GetUserResource';
 import {UpdateUserResource} from '../../application/userResource/UpdateUserResource';
 import { CreateUserResource } from '../../application/userResource/CreateUserResource';
+import { DeleteUserResource } from '../../application/userResource/DeleteUserResource';
 
 
 
@@ -10,15 +11,20 @@ class UserResourceController {
     private getUserResource: GetUserResource;
     private updateUserResource: UpdateUserResource;
     private createUserResource: CreateUserResource;
+    private deleteUserResource: DeleteUserResource;
 
     constructor(getUserResource: GetUserResource, 
             updateUserResource: UpdateUserResource,
-            createUserResource: CreateUserResource){
+            createUserResource: CreateUserResource,
+            deleteUserResource: DeleteUserResource){
         this.getUserResource = getUserResource;
         this.updateUserResource = updateUserResource;
         this.createUserResource = createUserResource;
+        this.deleteUserResource = deleteUserResource;
         this.router.get('/:resourceId', this.getResource.bind(this));
         this.router.put('/:resourceId', this.updateResource.bind(this));
+        this.router.post('/', this.createResource.bind(this));
+        this.router.delete('/:resourceId', this.deleteResource.bind(this));
     }
 
     public async getResource(req: express.Request, res: express.Response){
@@ -86,6 +92,21 @@ class UserResourceController {
             });
         }else{
             res.status(500).json({ error: 'Resource creation failed' });
+        }
+    }
+
+    async deleteResource(req: express.Request, res: express.Response){
+        const resourceId = parseInt(req.params.resourceId);
+        const userId = parseInt(req.params.userId);
+        try{
+            const deleted = await this.deleteUserResource.execute(userId, resourceId);
+            if(deleted){
+                res.status(200).json({ message: 'Resource deleted' });
+            }else{
+                res.status(404).json({ error: 'Resource not found' });
+            }
+        }catch(err){
+            res.status(500).json({ error: 'Resource deletion failed' });
         }
     }
 }

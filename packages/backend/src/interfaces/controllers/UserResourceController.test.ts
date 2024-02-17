@@ -5,6 +5,7 @@ import { UserResourceRepository } from '../../infrastructure/db/UserResourceRepo
 import { UserResourceType } from '../../domain/types';
 import { UpdateUserResource, UpdateUserResourceArgsType } from '../../application/userResource/UpdateUserResource';
 import { CreateUserResource, CreateUserResourceArgs } from '../../application/userResource/CreateUserResource';
+import { DeleteUserResource } from '../../application/userResource/DeleteUserResource';
 
 describe("UserResourceController", () => {
 
@@ -55,7 +56,22 @@ describe("UserResourceController", () => {
                 
             }
         );
-        userResourceController = new UserResourceController(getUserResource, updateUserResource, createUserResource);
+
+        const MockDeleteUserResource = DeleteUserResource as jest.MockedClass<typeof DeleteUserResource>;
+        const deleteUserResource = new MockDeleteUserResource(mockUserResourceRepository);
+        deleteUserResource.execute = jest.fn<(userId: number, resourceId: number) => Promise<boolean>>(
+            (userId: number, resourceId: number) => {
+                if(userId === 1 && resourceId === 1){
+                    return Promise.resolve(true);
+                }else{
+                    return Promise.resolve(false);
+                }
+            }
+        );
+
+        userResourceController = new UserResourceController(
+            getUserResource, updateUserResource, createUserResource, deleteUserResource
+        );
     });
     describe("getResource", () => {
         it('should return 404 when resource not found and 200 when resource', async () => {
@@ -162,6 +178,31 @@ describe("UserResourceController", () => {
             await userResourceController.createResource(req as any, res as any);
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({ error: "Invalid resource type" });
+        });
+    });
+
+    describe("deleteResource", () => {
+        it('should return 200 when resource is deleted successfully', async () => {
+            const req = { params: { userId: 1, resourceId: 1 } };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            await userResourceController.deleteResource(req as any, res as any);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Resource deleted' });
+        });
+        it('should return 404 when resource is not found', async () => {
+            const req = { params: { userId: 1, resourceId: 2 } };
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn()
+            };
+
+            await userResourceController.deleteResource(req as any, res as any);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ error: "Resource not found" });
         });
     });
 });
