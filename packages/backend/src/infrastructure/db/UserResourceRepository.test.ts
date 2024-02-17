@@ -1,4 +1,4 @@
-import {UserResourceRepository} from './UserResourceRepository';
+import {CREATE_USER_WEB_DAV_RESOURCE_FAILED, UserResourceRepository} from './UserResourceRepository';
 import {describe, beforeEach, it, expect} from "@jest/globals";
 
 describe('UserResourceRepository', () => {
@@ -58,6 +58,42 @@ describe('UserResourceRepository', () => {
         })
     });
 
+    describe('createUserWEBDavResource', () => {
+        it('returns CREATE_USER_WEB_DAV_RESOURCE_FAILED if user does not exists', async () => {
+            const createID = await userResourceRepository.createUserWEBDavResource(9999, "http://your-webdav-host-invalid.com:port", "username-invalid", "password-invalid", "directory-invalid");
+            expect(createID).toBe(CREATE_USER_WEB_DAV_RESOURCE_FAILED);
+        });
+        it('returns positive number if user exists', async () => {
+            const createID = await userResourceRepository.createUserWEBDavResource(1, 
+                "http://your-webdav-host-valid.com:port", 
+                "username-valid", "password-valid", "directory");
+            expect(createID).toBeGreaterThan(0);
 
+            const resource = await userResourceRepository.getUserResource(1, createID);
+            expect(resource).toEqual({ 
+                id: createID, userId: 1, protocolType: 'WEBDAV', 
+                url: 'http://your-webdav-host-valid.com:port', 
+                username: 'username-valid', 
+                password: 'password-valid',
+                directory: 'directory'
+             });
+        });
+    });
 
+    describe('deleteUserResource', () => {
+        it('returns true when the user resource is deleted', async () => {
+            const createID = await userResourceRepository.createUserWEBDavResource(1, 
+                "http://your-webdav-host-valid.com:port", 
+                "username-valid", "password-valid", "directory");
+            const success = await userResourceRepository.deleteUserResource(1, createID);
+            expect(success).toBe(true);
+
+            const resource = await userResourceRepository.getUserResource(1, createID);
+            expect(resource).toBeNull();
+        });
+        it('returns false when the user resource is not deleted', async () => {
+            const success = await userResourceRepository.deleteUserResource(9999, 10000);
+            expect(success).toBe(false);
+        });
+    });
 });
