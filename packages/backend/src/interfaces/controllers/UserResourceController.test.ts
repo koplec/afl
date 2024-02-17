@@ -142,8 +142,8 @@ describe("UserResourceController", () => {
             };
 
             await userResourceController.createResource(req as any, res as any);
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Resource created' });
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Resource created', resourceId: 123 });
         });
 
         it('should return 400 when resource type is invalid', async () => {
