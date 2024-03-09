@@ -13,7 +13,7 @@ const userId = 1;
 const resourceId = 2;
 
 async function run(){
-    await collectFileInfo.execute(userId, resourceId);
+    await collectFileInfo.executeBatch(userId, resourceId);
     console.info("collect-file-info-batch END")
     process.exit(0);
 }

@@ -63,7 +63,7 @@ export class WebDavService {
         });
     }
 
-    async traverse(dirPath: string,
+    public async traverse(dirPath: string,
          processFile:ProcessFileFunction,
          retryConfig?:RetryConfig): Promise<void>{
         const directoryItems = await this.client.getDirectoryContents(dirPath);
@@ -90,6 +90,41 @@ export class WebDavService {
                         processFile(webdavFile);
                     }else{
                         processFileWithRetry(processFile, retryConfig)(webdavFile);
+                    }
+                }
+            }
+        }
+    }
+
+    public async *traverseBatch(dirPath: string, batchSize: number): AsyncGenerator<WebDavFileInfo[]>{
+        let batch: WebDavFileInfo[] = [];
+
+        const directoryItems = await this.client.getDirectoryContents(dirPath);
+        if (isFileStatArray(directoryItems)){
+            for(const item of directoryItems){
+                if(item.type === 'directory'){
+                    yield* this.traverseBatch(item.filename, batchSize);
+                }else{
+                    batch.push(toWebDavFile(item, dirPath));
+                    if(batch.length >= batchSize){
+                        yield batch;
+                        batch = [];
+                    }
+                }
+            }
+            if(batch.length > 0){
+                yield batch;
+            }
+        }else if (isResponseDataDetailedDirectoryItem(directoryItems)){
+            let fileStats = directoryItems.data;
+            for(const item of fileStats){
+                if(item.type === 'directory'){
+                    yield* this.traverseBatch(item.filename, batchSize);
+                }else{
+                    batch.push(toWebDavFile(item, dirPath));
+                    if(batch.length >= batchSize){
+                        yield batch;
+                        batch = [];
                     }
                 }
             }
