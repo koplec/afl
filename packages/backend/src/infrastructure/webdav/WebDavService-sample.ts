@@ -8,6 +8,6 @@ let {url, user, password, dir} = args;
 let webDavService: WebDavService= new WebDavService(url, user, password);
 
 console.log('Traversing BEGIN');
-webDavService.traverse(dir, (item:WebDavFileInfo) => {
+webDavService.traverse(dir, async (item:WebDavFileInfo) => {
     console.log(item.filename);
 });

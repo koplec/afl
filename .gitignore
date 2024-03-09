@@ -2,3 +2,4 @@ node_modules/
 packages/backend/dist
 data/*
 db/init.sql
+packages/backend/output.txt

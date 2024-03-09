@@ -1,7 +1,7 @@
 import { WebDavFileInfo } from "../../domain/types";
 import { FileInfoRepository } from "../../infrastructure/db/FileInfoRepository.js";
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository.js";
-import { WebDavService } from "../../infrastructure/webdav/WebDavService.js";
+import { RetryError, WebDavService } from "../../infrastructure/webdav/WebDavService.js";
 
 export class CollectFileInfo {
     private userResourceRepository: UserResourceRepository;
@@ -34,16 +34,23 @@ export class CollectFileInfo {
 
         // 3. ディレクトリをトラバースしてファイル情報を収集
         console.info("Traversing BEGIN")
-        const files: WebDavFileInfo[] = [];
-        await webDavService.traverse(userResource.directory, (item: WebDavFileInfo) => {
-            files.push(item);
+        await webDavService.traverse(userResource.directory, async (item: WebDavFileInfo) => {
+            // 4. ファイル情報をDBに保存
+            try{
+                await this.fileInfoRepository.saveWebDavFileInfo(resourceId, item);
+            }catch(e: unknown){
+                if(e instanceof RetryError){
+                    console.error(`RetryError: Failed to save file info ${item.filename} : ${e.message}`);
+                }else{
+                    console.error(`UnknownError ${item.filename}`, e);
+                }
+            }
+        }, {
+            maxRetries: 3,
+            retryInterval: 1000
         });
 
-        // 4. ファイル情報をDBに保存
-        console.info("storing file info to DB");
-        for (const file of files){
-            await this.fileInfoRepository.saveWebDavFileInfo(resourceId, file);
-        }
+
         console.info("END")
     }
 }
