@@ -1,5 +1,5 @@
 import { UserResourceType } from "../../domain/types";
-import pool from "./Database";
+import pool from "./Database.js";
 
 type WEBDAVDetailType = {
     version: "1.0";

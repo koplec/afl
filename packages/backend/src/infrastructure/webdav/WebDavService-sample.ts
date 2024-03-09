@@ -1,10 +1,13 @@
 import { WebDavService } from './WebDavService.js';
 import { FileStat } from 'webdav';
+import minimist from 'minimist';
+import { WebDavFileInfo } from '../../domain/types.js';
 
-let webDavService: WebDavService= new WebDavService('http://XXXXXXXX', 'XXXXX', 'XXXXXX');
+let args = minimist(process.argv.slice(2))
+let {url, user, password, dir} = args;
+let webDavService: WebDavService= new WebDavService(url, user, password);
 
-console.log('Traversing /home BEGIN');
-webDavService.traverse('/home', (item: FileStat) => {
+console.log('Traversing BEGIN');
+webDavService.traverse(dir, (item:WebDavFileInfo) => {
     console.log(item.filename);
-})
-console.log('Traversing /home ...');
+});

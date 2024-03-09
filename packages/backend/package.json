@@ -13,6 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "ts-jest": {
+    "useESM": true
+  },
   "dependencies": {
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
