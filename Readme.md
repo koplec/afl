@@ -25,13 +25,14 @@ psql -U user -d dbname -h localhostで接続できる
 パスワードは、docker-componse.ymlに書いている通り、pass
 
 
-## background 
+## backend 
 cd packages/backend 
 tscでbuild 
 node dist/index.js
 
 testは、npm run testで以下のように実行される
 ```
+$ cd packages/backend
 $ npm run test
 
 > backend@1.0.0 test
