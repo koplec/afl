@@ -6,6 +6,8 @@ import UserResourceController from './interfaces/controllers/UserResourceControl
 import GetUserResource from './application/userResource/GetUserResource';
 import { UserResourceRepository } from './infrastructure/db/UserResourceRepository';
 import { UpdateUserResource } from './application/userResource/UpdateUserResource';
+import { CreateUserResource } from './application/userResource/CreateUserResource';
+import { DeleteUserResource } from './application/userResource/DeleteUserResource';
 
 //repository 
 const userResourceRepository = new UserResourceRepository();
@@ -16,10 +18,13 @@ const userRepository = new UserRepository();
 const getUser = new GetUser(userRepository);
 const getUserResource = new GetUserResource(userResourceRepository);
 const updateUserResource = new UpdateUserResource(userResourceRepository);
+const createUserResource = new CreateUserResource(userResourceRepository);
+const deleteUserResource = new DeleteUserResource(userResourceRepository);
+
 
 //controller
 const userController = new UserController(getUser);
-const userResoureController = new UserResourceController(getUserResource, updateUserResource);
+const userResoureController = new UserResourceController(getUserResource, updateUserResource, createUserResource, deleteUserResource );
 
 const app = express();
 app.use(express.json());
