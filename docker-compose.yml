@@ -1,11 +1,15 @@
 version: '3'
 services:
   db:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: dbname
+      LANG: ja_JP.utf8
+      LC_ALL: ja_JP.utf8
     ports:
       - "5432:5432"
     user: "${UID_GID}"
