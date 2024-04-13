@@ -2,7 +2,10 @@ import { CollectFileInfo } from "../application/userResource/CollectFileInfo.js"
 import { FileInfoRepository } from "../infrastructure/db/FileInfoRepository.js";
 import { UserResourceRepository } from "../infrastructure/db/UserResourceRepository.js";
 
-console.info("collect-file-info-batch BEGIN")
+import { logger } from "../utils/logger.js";
+
+
+logger.info("collect-file-info-batch BEGIN")
 
 //repository 
 const userResourceRepository = new UserResourceRepository();
@@ -14,8 +17,13 @@ const resourceId = 2;
 
 async function run(){
     await collectFileInfo.executeBatch(userId, resourceId);
-    console.info("collect-file-info-batch END")
-    process.exit(0);
+    logger.info("collect-file-info-batch END")
 }
 
-run();
+run()
+    .then(() => {
+        logger.info('All operations completed successfully');
+    })
+    .catch(error => {
+        logger.error('An error occurred:', error);
+    });
