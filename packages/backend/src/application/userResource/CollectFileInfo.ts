@@ -3,6 +3,8 @@ import { FileInfoRepository } from "../../infrastructure/db/FileInfoRepository.j
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository.js";
 import { RetryError, WebDavService } from "../../infrastructure/webdav/WebDavService.js";
 
+import { logger } from "../../utils/logger.js";
+
 export class CollectFileInfo {
     private userResourceRepository: UserResourceRepository;
     private fileInfoRepository: FileInfoRepository;
@@ -16,19 +18,17 @@ export class CollectFileInfo {
     public async execute(userId: number, resourceId:number):Promise<void>{
         //与えられたuserIdとresourceIdに対応するWEBDAVリソースからディレクトリをトラバースして、
         //ファイル情報を収集して、DBに保存する
-
-        console.info("userId: " + userId);
-        console.info("resourceId: " + resourceId)
+        logger.info(`CollectFileInfo.execute userId:${userId} resourceId:${resourceId} BEGIN`)
         
         // 1. リソース情報を取得
-        console.info("getUserResource BEGIN");
+        logger.debug("getUserResource BEGIN");
         const userResource = await this.userResourceRepository.getUserResource(userId, resourceId);
         if(userResource === null){
             throw new Error('Resource not found');
         }
 
         // 2. リソース情報を元にWEBDAVリソースに接続
-        console.info("WebDavService BEGIN")
+        logger.debug("WebDavService BEGIN")
         const webDavService: WebDavService = new WebDavService(
             userResource.url, userResource.username, userResource.password);
 
@@ -39,34 +39,33 @@ export class CollectFileInfo {
                 await this.fileInfoRepository.saveWebDavFileInfo(resourceId, item);
             }catch(e: unknown){
                 if(e instanceof RetryError){
-                    console.error(`RetryError: Failed to save file info ${item.filename} : ${e.message}`);
+                    logger.error(`RetryError: Failed to save file info ${item.filename} : ${e.message}`);
                 }else{
-                    console.error(`UnknownError ${item.filename}`, e);
+                    logger.error(`UnknownError ${item.filename}`, e);
                 }
             }
         }, {
             maxRetries: 3,
             retryInterval: 1000
         });
-        console.info("END")
+        logger.info("END")
     }
 
     public async executeBatch(userId: number, resourceId:number, batchSize:number=10):Promise<void>{
         //与えられたuserIdとresourceIdに対応するWEBDAVリソースからディレクトリをトラバースして、
         //ファイル情報を収集して、DBに保存する
-
-        console.info("userId: " + userId);
-        console.info("resourceId: " + resourceId)
+        logger.info(`CollectFileInfo.executeBatch userId:${userId} resourceId:${resourceId} BEGIN`)
+        
         
         // 1. リソース情報を取得
-        console.info("getUserResource BEGIN");
+        logger.debug("getUserResource BEGIN");
         const userResource = await this.userResourceRepository.getUserResource(userId, resourceId);
         if(userResource === null){
             throw new Error('Resource not found');
         }
 
         // 2. リソース情報を元にWEBDAVリソースに接続
-        console.info("WebDavService BEGIN")
+        logger.debug("WebDavService BEGIN")
         const webDavService: WebDavService = new WebDavService(
             userResource.url, userResource.username, userResource.password);
 
@@ -79,13 +78,13 @@ export class CollectFileInfo {
                     await this.fileInfoRepository.saveWebDavFileInfo(resourceId, item);
                 }catch(e: unknown){
                     if(e instanceof RetryError){
-                        console.error(`RetryError: Failed to save file info ${item.filename} : ${e.message}`);
+                        logger.error(`RetryError: Failed to save file info ${item.filename} : ${e.message}`);
                     }else{
-                        console.error(`UnknownError ${item.filename}`, e);
+                        logger.error(`UnknownError ${item.filename}`, e);
                     }
                 }
             }
         }
-        console.info("END")
+        logger.info("END")
     }
 }

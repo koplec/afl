@@ -2,18 +2,19 @@ import { PoolClient } from "pg";
 import { WebDavFileInfo } from "../../domain/types";
 import pool from "./Database.js";
 
+import { logger } from "../../utils/logger.js";
 
 export class FileInfoRepository {
     private client: PoolClient | null;
     constructor() {
-        console.info("FileInfoRepository instantiated");
+        logger.info("FileInfoRepository instantiated");
         this.client = null;
     }
 
     async saveWebDavFileInfo(
         mstUserResourceId: number,
         { filename, filepath, filesize, lastModified, type, mime }: WebDavFileInfo): Promise<void> {
-        console.info(`saveWebDavFileInfo BEGIN filename:${filename}`);
+        logger.info(`saveWebDavFileInfo BEGIN filename:${filename}`);
         if(this.client === null || this.client === undefined){
             this.client = await pool.connect();
         }
@@ -29,11 +30,11 @@ export class FileInfoRepository {
                 `,
                 [mstUserResourceId, filepath, filename, filesize, mimetype, lastModified]
             )
-            // console.debug("saveWebDavFileInfo result: ", result);
+            // logger.debug("saveWebDavFileInfo result: ", result);
         } catch (e: unknown) {
-            console.error(`Unknown Error ${filename} info save failed: `, e);
+            logger.error(`Unknown Error ${filename} info save failed: `, e);
         }finally{
-            console.info(`saveWebDavFileInfo END filename:${filename}`);
+            logger.info(`saveWebDavFileInfo END filename:${filename}`);
         }
     }
 }

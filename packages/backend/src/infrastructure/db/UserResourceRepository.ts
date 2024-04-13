@@ -1,6 +1,8 @@
 import { UserResourceType } from "../../domain/types";
 import pool from "./Database.js";
 
+import {logger} from "../../utils/logger.js";
+
 type WEBDAVDetailType = {
     version: "1.0";
     webdav_url: string;
@@ -13,7 +15,7 @@ export const CREATE_USER_WEB_DAV_RESOURCE_FAILED = -1;
 
 export class UserResourceRepository {
     constructor() {
-        console.log("UserResourceRepository instantiated");
+        logger.info("UserResourceRepository instantiated");
     }
     async getUserResource(userId: number, resourceId: number):Promise<UserResourceType|null>{
         const client = await pool.connect();
@@ -52,7 +54,7 @@ export class UserResourceRepository {
                 return null;
             }
         }catch(e){
-            console.error(e);
+            logger.error(e);
             return null;
         } finally {
             client.release();
@@ -99,7 +101,7 @@ export class UserResourceRepository {
                 return [];
             }
         }catch(e){
-            console.error(e);
+            logger.error(e);
             return [];
         } finally {
             client.release();
@@ -149,7 +151,7 @@ export class UserResourceRepository {
             }
 
         }catch(e){
-            console.error(e);
+            logger.error(e);
             await client.query('ROLLBACK');
             return false;
         } finally {
@@ -200,7 +202,7 @@ export class UserResourceRepository {
                 return CREATE_USER_WEB_DAV_RESOURCE_FAILED;
             }
         }catch(e){
-            console.error(e);
+            logger.error(e);
             await client.query('ROLLBACK');
             return CREATE_USER_WEB_DAV_RESOURCE_FAILED;
         }finally{
@@ -248,7 +250,7 @@ export class UserResourceRepository {
                 return false;
             }
         }catch(e){
-            console.error(e);
+            logger.error(e);
             await client.query('ROLLBACK');
             return false;
         }finally{
