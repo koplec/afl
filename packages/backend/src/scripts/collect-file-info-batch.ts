@@ -1,4 +1,5 @@
 import { CollectFileInfo } from "../application/userResource/CollectFileInfo.js";
+import BatchLogRepository from "../infrastructure/db/BatchLogRepository.js";
 import { FileInfoRepository } from "../infrastructure/db/FileInfoRepository.js";
 import { UserResourceRepository } from "../infrastructure/db/UserResourceRepository.js";
 
@@ -10,7 +11,8 @@ logger.info("collect-file-info-batch BEGIN")
 //repository 
 const userResourceRepository = new UserResourceRepository();
 const fileInfoRepository = new FileInfoRepository();
-const collectFileInfo = new CollectFileInfo(userResourceRepository, fileInfoRepository);
+const batchLogRepository = new BatchLogRepository();
+const collectFileInfo = new CollectFileInfo(userResourceRepository, fileInfoRepository, batchLogRepository);
 
 //args
 const argv = minimist(process.argv.slice(2), {

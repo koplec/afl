@@ -1,4 +1,5 @@
 import { WebDavFileInfo } from "../../domain/types";
+import BatchLogRepository from "../../infrastructure/db/BatchLogRepository.js";
 import { FileInfoRepository } from "../../infrastructure/db/FileInfoRepository.js";
 import { UserResourceRepository } from "../../infrastructure/db/UserResourceRepository.js";
 import { RetryError, WebDavService } from "../../infrastructure/webdav/WebDavService.js";
@@ -7,24 +8,30 @@ import { logger } from "../../utils/logger.js";
 
 export class CollectFileInfo {
     private userResourceRepository: UserResourceRepository;
+    private batchLogRepository: BatchLogRepository;
     private fileInfoRepository: FileInfoRepository;
 
     constructor(
         userResourceRepository: UserResourceRepository, 
-        fileInfoRepository: FileInfoRepository) {
+        fileInfoRepository: FileInfoRepository,
+        batchLogRepository: BatchLogRepository) {
         this.userResourceRepository = userResourceRepository;
         this.fileInfoRepository =  fileInfoRepository;
+        this.batchLogRepository = batchLogRepository;
     }
     public async execute(userId: number, resourceId:number):Promise<void>{
         //与えられたuserIdとresourceIdに対応するWEBDAVリソースからディレクトリをトラバースして、
         //ファイル情報を収集して、DBに保存する
-        logger.info(`CollectFileInfo.execute userId:${userId} resourceId:${resourceId} BEGIN`)
-        
+        const startMessage = `CollectFileInfo.execute userId:${userId} resourceId:${resourceId} BEGIN`;
+        logger.info(startMessage);
+
+
         // 1. リソース情報を取得
         logger.debug("getUserResource BEGIN");
         const userResource = await this.userResourceRepository.getUserResource(userId, resourceId);
         if(userResource === null){
-            throw new Error('Resource not found');
+            const message = 'userResource not found'
+            throw new Error(message);
         }
 
         // 2. リソース情報を元にWEBDAVリソースに接続
@@ -48,20 +55,24 @@ export class CollectFileInfo {
             maxRetries: 3,
             retryInterval: 1000
         });
+
         logger.info("END")
     }
 
     public async executeBatch(userId: number, resourceId:number, batchSize:number=10):Promise<void>{
         //与えられたuserIdとresourceIdに対応するWEBDAVリソースからディレクトリをトラバースして、
         //ファイル情報を収集して、DBに保存する
-        logger.info(`CollectFileInfo.executeBatch userId:${userId} resourceId:${resourceId} BEGIN`)
-        
-        
+        const startMessage = `CollectFileInfo.execute userId:${userId} resourceId:${resourceId} BEGIN`;
+        logger.info(startMessage); 
+        const batchLogId = await this.batchLogRepository.startBatch(startMessage);
+
         // 1. リソース情報を取得
         logger.debug("getUserResource BEGIN");
         const userResource = await this.userResourceRepository.getUserResource(userId, resourceId);
         if(userResource === null){
-            throw new Error('Resource not found');
+            const errorMessage = 'userResource not found'
+            await this.batchLogRepository.errorBatch(batchLogId, errorMessage);
+            throw new Error(errorMessage);
         }
 
         // 2. リソース情報を元にWEBDAVリソースに接続
@@ -85,6 +96,8 @@ export class CollectFileInfo {
                 }
             }
         }
+        
+        await this.batchLogRepository.endBatch(batchLogId);
         logger.info("END")
     }
 }
