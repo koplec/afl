@@ -56,3 +56,6 @@ Ran all test suites.
 ```
 
 
+## scripts
+
+node dist/scripts/collect-file-info-batch.js 
